@@ -1,0 +1,3 @@
+---
+- include: download_vm_template.yml
+- include: create_vml.yml

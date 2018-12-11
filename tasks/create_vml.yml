@@ -1,0 +1,24 @@
+---
+- name: "get virtual machines facts"
+  vmware_vm_facts:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ esxi_ssl_validate_certs }}"
+  register: vm_facts
+  connection: local
+
+- name: "create vm from template"
+  command: >
+    ovftool
+    --name="{{ vm_name }}"
+    --datastore="{{ vm_datastore }}"
+    --network="{{ vm_network }}"
+    --sourceSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
+    --targetSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
+    --machineOutput
+    "{{ vm_template_dir }}/{{ vm_template }}" "{{ esxi_vi_location }}"
+  register: create_vm_result
+  when: not vm_name in vm_facts.virtual_machines
+  connection: local
+  
