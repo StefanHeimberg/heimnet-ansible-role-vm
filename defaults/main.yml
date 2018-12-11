@@ -1,4 +1,7 @@
 ---
+vm_provision_enabled: true
+vm_configure_enabled: true
+
 vm_template: "ubuntu-18.04.1-server-amd64-0.3.ova"
 vm_template_dir: "/tmp"
 vm_template_download_url: "https://nas.heimnet.ch/Downloads/ESXi/templates/{{ vm_template }}"
