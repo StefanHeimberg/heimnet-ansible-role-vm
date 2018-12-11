@@ -1,4 +1,9 @@
 ---
 - include: download_vm_template.yml
-- include: create_vm.yml
+  when: vm_provision_enabled
+
+- include: provision_vm.yml
+  when: vm_provision_enabled
+
 - include: configure_vm.yml
+  when: vm_configure_enabled
