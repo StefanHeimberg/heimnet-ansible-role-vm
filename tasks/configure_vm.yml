@@ -7,13 +7,9 @@
     validate_certs: "{{ esxi_ssl_validate_certs }}"
   register: vm_facts
   connection: local
-  tags:
-    - configure
 
 - set_fact: configure_vm_timestamp="{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
   connection: local
-  tags:
-    - configure
 
 - name: "configure hardware settings"
   vmware_guest:
@@ -31,8 +27,6 @@
     networks:
       - name: "{{ vm_network | default(vm_network_default) }}"
   connection: local
-  tags:
-    - configure
 
 - name: "configure guest settings"
   vmware_guest:
@@ -61,8 +55,6 @@
       - key: "guestinfo.heimnet.searchdomain"
         value: "{{ vm_searchdomain | default('') }}"
   connection: local
-  tags:
-    - configure
 
 - name: "power on vm"
   vmware_guest:
@@ -74,5 +66,3 @@
     state: "poweredon"
     wait_for_ip_address: true
   connection: local
-  tags:
-    - configure
