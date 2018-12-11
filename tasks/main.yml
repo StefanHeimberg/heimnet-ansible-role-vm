@@ -1,3 +1,4 @@
 ---
 - include: download_vm_template.yml
-- include: create_vml.yml
+- include: create_vm.yml
+- include: configure_vm.yml

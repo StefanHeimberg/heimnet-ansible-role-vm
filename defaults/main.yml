@@ -5,3 +5,7 @@ vm_template_download_url: "https://nas.heimnet.ch/Downloads/ESXi/templates/{{ vm
 vm_name: "{{ inventory_hostname_short }}"
 vm_diskmode: "thick"
 vm_searchdomain: "heimnet.ch"
+
+vm_memory_default: 512
+vm_cpus_default: 1
+vm_network_default: 'LAN'

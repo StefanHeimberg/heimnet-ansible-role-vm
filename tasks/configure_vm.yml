@@ -1,0 +1,78 @@
+---
+- name: "get virtual machines facts"
+  vmware_vm_facts:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ esxi_ssl_validate_certs }}"
+  register: vm_facts
+  connection: local
+  tags:
+    - configure
+
+- set_fact: configure_vm_timestamp="{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+  connection: local
+  tags:
+    - configure
+
+- name: "configure hardware settings"
+  vmware_guest:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ esxi_ssl_validate_certs }}"
+    name: "{{ vm_name }}"
+    hardware:
+      hotadd_cpu: true
+      hotremove_cpu: true
+      hotadd_memory: true
+      memory_mb: "{{ vm_memory | default(vm_memory_default) }}"
+      num_cpus: "{{ vm_cpus | default(vm_cpus_default) }}"
+    networks:
+      - name: "{{ vm_network | default(vm_network_default) }}"
+  connection: local
+  tags:
+    - configure
+
+- name: "configure guest settings"
+  vmware_guest:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ esxi_ssl_validate_certs }}"
+    name: "{{ vm_name }}"
+    customvalues:
+      - key: "guestinfo.heimnet.last_configuration"
+        value: "{{ configure_vm_timestamp }}"
+      - key: "guestinfo.heimnet.hostname"
+        value: "{{ vm_name }}"
+      - key: "guestinfo.heimnet.adminuser_name"
+        value: "{{ vm_adminuser_name | default('') }}"
+      - key: "guestinfo.heimnet.adminuser_password_hash"
+        value: "{{ vm_adminuser_password_hash | default('') }}"
+      - key: "guestinfo.heimnet.adminuser_authorized_keys"
+        value: "{{ vm_adminuser_authorized_keys | default('') }}"
+      - key: "guestinfo.heimnet.address"
+        value: "{{ vm_address | default('') }}"
+      - key: "guestinfo.heimnet.gateway"
+        value: "{{ vm_gateway | default('') }}"
+      - key: "guestinfo.heimnet.nameserver"
+        value: "{{ vm_nameserver | default('') }}"
+      - key: "guestinfo.heimnet.searchdomain"
+        value: "{{ vm_searchdomain | default('') }}"
+  connection: local
+  tags:
+    - configure
+
+- name: "power on vm"
+  vmware_guest:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ esxi_ssl_validate_certs }}"
+    name: "{{ vm_name }}"
+    state: "poweredon"
+    wait_for_ip_address: true
+  connection: local
+  tags:
+    - configure
