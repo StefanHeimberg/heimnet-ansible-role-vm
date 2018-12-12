@@ -1,9 +1,4 @@
 ---
-- include: download_vm_template.yml
-  when: vm_provision_enabled
-  tags:
-    - provision
-
 - include: provision_vm.yml
   when: vm_provision_enabled
   tags:
