@@ -8,17 +8,37 @@
   register: vm_facts
   connection: local
 
-- name: "create vm from template"
-  command: >
-    ovftool
-    --name="{{ vm_name }}"
-    --datastore="{{ vm_datastore }}"
-    --network="{{ vm_network }}"
-    --sourceSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
-    --targetSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
-    --machineOutput
-    "{{ vm_template_dir }}/{{ vm_template }}" "{{ esxi_vi_location }}"
-  register: create_vm_result
+- block:
+
+  - name: "get template facts"
+    stat:
+      path: "{{ vm_template_dir }}/{{ vm_template }}"
+      get_checksum: false
+    register: vm_template_stats
+    connection: local
+
+  - name: "download template"
+    get_url:
+      url: "{{ vm_template_download_url }}"
+      dest: "{{ vm_template_dir }}/{{ vm_template }}"
+      validate_certs: false
+      mode: 0644
+    when: not vm_template_stats.stat.exists
+    run_once: true
+    connection: local
+
+  - name: "create vm from template"
+    command: >
+      ovftool
+      --name="{{ vm_name }}"
+      --datastore="{{ vm_datastore }}"
+      --network="{{ vm_network }}"
+      --sourceSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
+      --targetSSLThumbprint={{ esxi_vi_ssl_thumbprint }}
+      --machineOutput
+      "{{ vm_template_dir }}/{{ vm_template }}" "{{ esxi_vi_location }}"
+    register: create_vm_result
+    connection: local
+
   when: not vm_name in vm_facts.virtual_machines
-  connection: local
   
